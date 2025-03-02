@@ -216,14 +216,17 @@ void q_reverse(struct list_head *head)
     if (!head)
         return;
 
-    struct list_head *node, *nextnode;
+    struct list_head *node = head->next, *nextnode;
 
     /* Swap next and prev pointers of all the nodes */
-    for (node = head->next; node != head; node = nextnode) {
+    while (node != head) {
         nextnode = node->next;
         node->next = node->prev;
         node->prev = nextnode;
+        /* Move to the next node */
+        node = nextnode;
     }
+    node = head->next;
     head->next = head->prev;
     head->prev = node;
 }
