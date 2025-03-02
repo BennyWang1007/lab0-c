@@ -7,11 +7,32 @@
 /* Create an empty queue */
 struct list_head *q_new()
 {
-    return NULL;
+    struct list_head *new_head = malloc(sizeof(struct list_head));
+    if (!new_head)
+        return NULL;
+
+    new_head->next = new_head;
+    new_head->prev = new_head;
+
+    return new_head;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *head) {}
+void q_free(struct list_head *head)
+{
+    if (!head)
+        return;
+
+    element_t *element, *safe = NULL;
+
+    list_for_each_entry_safe (element, safe, head, list) {
+        list_del(&element->list);
+        free(element->value);
+        free(element);
+    }
+
+    free(head);
+}
 
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
