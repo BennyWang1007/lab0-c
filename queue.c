@@ -4,6 +4,12 @@
 
 #include "queue.h"
 
+#define free_element(e) \
+    do {                \
+        free(e->value); \
+        free(e);        \
+    } while (0)
+
 /* Create an empty queue */
 struct list_head *q_new()
 {
@@ -27,8 +33,7 @@ void q_free(struct list_head *head)
 
     list_for_each_entry_safe (element, safe, head, list) {
         list_del(&element->list);
-        free(element->value);
-        free(element);
+        free_element(element);
     }
 
     free(head);
@@ -144,8 +149,7 @@ bool q_delete_mid(struct list_head *head)
 
     /* Slow is the middle node */
     list_del(slow);
-    free(list_entry(slow, element_t, list)->value);
-    free(list_entry(slow, element_t, list));
+    free_element(list_entry(slow, element_t, list));
 
     return true;
 }
@@ -164,14 +168,12 @@ bool q_delete_dup(struct list_head *head)
         element_t *e = list_entry(node, element_t, list);
         if (!strcmp(prev->value, e->value)) {
             list_del(node);
-            free(e->value);
-            free(e);
+            free_element(e);
             is_dup = true;
         } else {
             if (is_dup) {
                 list_del(prev_node);
-                free(prev->value);
-                free(prev);
+                free_element(prev);
                 is_dup = false;
             }
             prev = e;
@@ -182,8 +184,7 @@ bool q_delete_dup(struct list_head *head)
 
     if (is_dup) {
         list_del(prev_node);
-        free(prev->value);
-        free(prev);
+        free_element(prev);
     }
 
     return true;
@@ -328,8 +329,7 @@ int q_ascend(struct list_head *head)
             min = e->value;
         else {
             list_del(node);
-            free(e->value);
-            free(e);
+            free_element(e);
         }
         node = prev_node;
     }
@@ -360,8 +360,7 @@ int q_descend(struct list_head *head)
             max = e->value;
         else {
             list_del(node);
-            free(e->value);
-            free(e);
+            free_element(e);
         }
         node = prev_node;
     }
