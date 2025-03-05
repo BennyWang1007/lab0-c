@@ -913,6 +913,77 @@ static bool do_merge(int argc, char *argv[])
     return ok && !error_check();
 }
 
+/* Swap two nodes */
+#define swap_nodes(a, b)                                  \
+    do {                                                  \
+        typeof(a) a_prev = (a)->prev, a_next = (a)->next; \
+        typeof(b) b_prev = (b)->prev, b_next = (b)->next; \
+                                                          \
+        if ((a)->next == (b)) { /* Adjacent nodes */      \
+            (a)->next = b_next;                           \
+            (a)->prev = (b);                              \
+            (b)->next = (a);                              \
+            (b)->prev = a_prev;                           \
+        } else if ((b)->next == (a)) {                    \
+            (b)->next = a_next;                           \
+            (b)->prev = (a);                              \
+            (a)->next = (b);                              \
+            (a)->prev = b_prev;                           \
+        } else { /* Non-adjacent nodes */                 \
+            (a)->next = b_next;                           \
+            (a)->prev = b_prev;                           \
+            (b)->next = a_next;                           \
+            (b)->prev = a_prev;                           \
+        }                                                 \
+                                                          \
+        (a)->next->prev = (a);                            \
+        (a)->prev->next = (a);                            \
+        (b)->next->prev = (b);                            \
+        (b)->prev->next = (b);                            \
+    } while (0)
+
+void q_shuffle(struct list_head *head)
+{
+    if (!head)
+        return;
+
+    size_t qsize = q_size(head);
+
+    /* Fisher-Yates shuffle */
+    for (size_t i = qsize - 1; i > 0; i--) {
+        size_t j = rand() % (i + 1);
+        struct list_head *cur = head->next, *swap = head->next;
+        for (size_t k = 0; k < i; k++)
+            cur = cur->next;
+        for (size_t k = 0; k < j; k++)
+            swap = swap->next;
+        swap_nodes(swap, cur);
+    }
+}
+
+static bool do_shuffle(int argc, char *argv[])
+{
+    if (argc != 1) {
+        report(1, "%s takes no arguments", argv[0]);
+        return false;
+    }
+
+    if (!current || !current->q) {
+        report(3, "Warning: Calling shuffle on null queue");
+        return false;
+    }
+    error_check();
+
+    set_noallocate_mode(true);
+    if (exception_setup(true))
+        q_shuffle(current->q);
+    exception_cancel();
+
+    set_noallocate_mode(false);
+    q_show(3);
+    return !error_check();
+}
+
 static bool is_circular()
 {
     struct list_head *cur = current->q->next;
@@ -1096,6 +1167,7 @@ static void console_init()
                 "");
     ADD_COMMAND(reverseK, "Reverse the nodes of the queue 'K' at a time",
                 "[K]");
+    ADD_COMMAND(shuffle, "Shuffle the nodes of the queue", "");
     add_param("length", &string_length, "Maximum length of displayed string",
               NULL);
     add_param("malloc", &fail_probability, "Malloc failure probability percent",
