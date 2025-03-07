@@ -256,14 +256,23 @@ void q_reverseK(struct list_head *head, int k)
     int round = count / k;
     struct list_head *node = head;
     for (int i = 0; i < round; i++) {
-        struct list_head *cur = node->next, *next = NULL;
+        struct list_head *cur = node->next, *next, *tmp;
+        /* Reverse the nodes */
         for (int j = 0; j < k; j++) {
             next = cur->next;
-            list_move(cur, node);
+            tmp = cur->next;
+            cur->next = cur->prev;
+            cur->prev = tmp;
             cur = next;
         }
-        for (int j = 0; j < k; j++)
-            node = node->next;
+        /* Swap the pointers */
+        next->prev->prev = node;
+        node->next->next = next;
+        tmp = next->prev;
+        next->prev = node->next;
+        node->next = tmp;
+        /* Move to the next group */
+        node = next->prev;
     }
 }
 
