@@ -90,10 +90,29 @@ clean:
 	rm -f $(OBJS) $(deps) *~ qtest /tmp/qtest.* fmtscan
 	rm -rf .$(DUT_DIR)
 	rm -rf *.dSYM
+	rm -f sort_eff_qsort sort_eff_linux sort_eff_read
 	(cd traces; rm -f *~)
 
 distclean: clean
 	-rm -f .cmd_history
 	-rm -rf .out
+
+SORT_EFF_OBJS := queue.o harness.o report.o web.o random.o linux_listsort.o
+SORT_EFF_TARGETS := sort_eff_qsort sort_eff_linux sort_eff_read
+
+sort_eff:
+	$(MAKE) $(SORT_EFF_TARGETS)
+
+sort_eff_qsort: $(SORT_EFF_OBJS) sort_eff_qsort.c sort_eff.h
+	$(VECHO) "LD\t$@\n"
+	$(Q)$(CC) -o $@ $^ -O2 -g
+
+sort_eff_linux: $(SORT_EFF_OBJS) sort_eff_linux.c sort_eff.h
+	$(VECHO) "LD\t$@\n"
+	$(Q)$(CC) -o $@ $^ -O2 -g
+
+sort_eff_read: $(SORT_EFF_OBJS) sort_eff_read.c sort_eff.h
+	$(VECHO) "LD\t$@\n"
+	$(Q)$(CC) -o $@ $^ -O2 -g
 
 -include $(deps)
