@@ -144,6 +144,8 @@ static char **parse_args(char *line, int *argcp)
             *dst++ = c;
         }
     }
+    /* Let the last substring is null-terminated */
+    *dst++ = '\0';
 
     /* Now assemble into array of strings */
     char **argv = calloc_or_fail(argc, sizeof(char *), "parse_args");
@@ -158,12 +160,43 @@ static char **parse_args(char *line, int *argcp)
     return argv;
 }
 
+/* Handles forced console termination for record_error and do_quit */
+static bool force_quit(int argc, char *argv[])
+{
+    cmd_element_t *c = cmd_list;
+    bool ok = true;
+    while (c) {
+        cmd_element_t *ele = c;
+        c = c->next;
+        free_block(ele, sizeof(cmd_element_t));
+    }
+
+    param_element_t *p = param_list;
+    while (p) {
+        param_element_t *ele = p;
+        p = p->next;
+        free_block(ele, sizeof(param_element_t));
+    }
+
+    while (buf_stack)
+        pop_file();
+
+    for (int i = 0; i < quit_helper_cnt; i++) {
+        ok = ok && quit_helpers[i](argc, argv);
+    }
+
+    quit_flag = true;
+    return ok;
+}
+
 static void record_error()
 {
     err_cnt++;
     if (err_cnt >= err_limit) {
-        report(1, "Error limit exceeded.  Stopping command execution");
-        quit_flag = true;
+        report(
+            1,
+            "Error limit exceeded.  Stopping command execution, and quitting");
+        force_quit(0, NULL);
     }
 }
 
@@ -224,30 +257,7 @@ void set_echo(bool on)
 /* Built-in commands */
 static bool do_quit(int argc, char *argv[])
 {
-    cmd_element_t *c = cmd_list;
-    bool ok = true;
-    while (c) {
-        cmd_element_t *ele = c;
-        c = c->next;
-        free_block(ele, sizeof(cmd_element_t));
-    }
-
-    param_element_t *p = param_list;
-    while (p) {
-        param_element_t *ele = p;
-        p = p->next;
-        free_block(ele, sizeof(param_element_t));
-    }
-
-    while (buf_stack)
-        pop_file();
-
-    for (int i = 0; i < quit_helper_cnt; i++) {
-        ok = ok && quit_helpers[i](argc, argv);
-    }
-
-    quit_flag = true;
-    return ok;
+    return force_quit(argc, argv);
 }
 
 static bool do_help(int argc, char *argv[])
@@ -427,7 +437,7 @@ void init_cmd()
                 "Display or set options. See 'Options' section for details",
                 "[name val]");
     ADD_COMMAND(quit, "Exit program", "");
-    ADD_COMMAND(source, "Read commands from source file", "");
+    ADD_COMMAND(source, "Read commands from source file", "file");
     ADD_COMMAND(log, "Copy output to file", "file");
     ADD_COMMAND(time, "Time command execution", "cmd arg ...");
     ADD_COMMAND(web, "Read commands from builtin web server", "[port]");
