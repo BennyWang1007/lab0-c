@@ -719,7 +719,7 @@ bool do_sort_l(int argc, char *argv[])
     unsigned no = 0;
     if (current && current->size && current->size <= MAX_NODES) {
         element_t *entry;
-        list_for_each_entry (entry, current->q, list)
+        list_for_each_entry(entry, current->q, list)
             nodes[no++] = &entry->list;
     } else if (current && current->size > MAX_NODES)
         report(1,

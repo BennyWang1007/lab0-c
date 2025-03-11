@@ -50,7 +50,7 @@ static const char charset[] = "abcdefghijklmnopqrstuvwxyz";
     do {                                                     \
         struct list_head *pos;                               \
         printf("List: [");                                   \
-        list_for_each (pos, head) {                          \
+        list_for_each(pos, head) {                           \
             element_t *e = list_entry(pos, element_t, list); \
             if (pos->next == head)                           \
                 printf("%s", e->value);                      \
@@ -138,7 +138,7 @@ void prepare_test_cases()
     // print first 10 elements
     struct list_head *pos;
     int count = 0;
-    list_for_each (pos, &test_cases[0]) {
+    list_for_each(pos, &test_cases[0]) {
         element_t *e = list_entry(pos, element_t, list);
         if (count < 10) {
             printf("%s\n", e->value);
@@ -154,7 +154,7 @@ void prepare_test_cases()
     }
     for (int i = 0; i < TEST_COUNT; i++) {
         struct list_head *pos;
-        list_for_each (pos, &test_cases[i]) {
+        list_for_each(pos, &test_cases[i]) {
             element_t *e = list_entry(pos, element_t, list);
             assert(strlen(e->value) == MAX_RANDSTR_LEN);
             fwrite(e->value, sizeof(char), strlen(e->value), fp);
@@ -222,7 +222,7 @@ void read_test_cases()
     // print first 10 elements
     struct list_head *pos;
     int count = 0;
-    list_for_each (pos, &test_cases_linux[0]) {
+    list_for_each(pos, &test_cases_linux[0]) {
         element_t *e = list_entry(pos, element_t, list);
         if (count < 10) {
             printf("%s\n", e->value);
