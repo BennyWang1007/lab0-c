@@ -425,6 +425,12 @@ static bool do_web(int argc, char *argv[])
     return true;
 }
 
+bool do_no_command(int argc, char *argv[])
+{
+    report(1, "Empty command");
+    return true;
+}
+
 /* Initialize interpreter */
 void init_cmd()
 {
@@ -443,6 +449,7 @@ void init_cmd()
     ADD_COMMAND(time, "Time command execution", "cmd arg ...");
     ADD_COMMAND(web, "Read commands from builtin web server", "[port]");
     add_cmd("#", do_comment_cmd, "Display comment", "...");
+    add_cmd(".", do_no_command, "Empty command", "");
     add_param("simulation", &simulation, "Start/Stop simulation mode", NULL);
     add_param("verbose", &verblevel, "Verbosity level", NULL);
     add_param("error", &err_limit, "Number of errors until exit", NULL);

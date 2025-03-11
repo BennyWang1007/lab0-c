@@ -128,7 +128,8 @@ void send_response(int out_fd)
         "<html><head><style>"
         "body{font-family: monospace; font-size: 13px;}"
         "td {padding: 1.5px 6px;}"
-        "</style><link rel=\"shortcut icon\" href=\"#\">"
+        "</style><link rel=\"shortcut icon\" href=\"data:image/x-icon;,\" "
+        "type=\"image/x-icon\">"
         "</head><body><table>\n";
     writen(out_fd, buf, strlen(buf));
 }
