@@ -30,9 +30,9 @@ clock_t sort_eff_start, sort_eff_end;
 #endif
 
 #ifdef SORT_EFF_WAIT_FOR_PERF
-#define WAIT_FOR_PERF()            \
+#define WAIT_FOR_PERF(t)           \
     printf("pid: %d\n", getpid()); \
-    sleep(10)
+    sleep(t)
 #else
 #define WAIT_FOR_PERF()
 #endif

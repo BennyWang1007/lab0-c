@@ -98,20 +98,8 @@ distclean: clean
 	-rm -rf .out
 
 SORT_EFF_OBJS := queue.o harness.o report.o web.o random.o linux_listsort.o
-SORT_EFF_TARGETS := sort_eff_qsort sort_eff_linux sort_eff_read
 
-sort_eff:
-	$(MAKE) $(SORT_EFF_TARGETS)
-
-sort_eff_qsort: $(SORT_EFF_OBJS) sort_eff_qsort.c sort_eff.h
-	$(VECHO) "LD\t$@\n"
-	$(Q)$(CC) -o $@ $^ -O2 -g
-
-sort_eff_linux: $(SORT_EFF_OBJS) sort_eff_linux.c sort_eff.h
-	$(VECHO) "LD\t$@\n"
-	$(Q)$(CC) -o $@ $^ -O2 -g
-
-sort_eff_read: $(SORT_EFF_OBJS) sort_eff_read.c sort_eff.h
+sort_eff: $(SORT_EFF_OBJS) sort_eff.c sort_eff.h
 	$(VECHO) "LD\t$@\n"
 	$(Q)$(CC) -o $@ $^ -O2 -g
 
